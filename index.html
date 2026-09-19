@@ -523,3 +523,174 @@
       action: "Prioritize a source of protein and fiber at every meal this week to help stabilize blood sugar, and pay attention to whether your afternoon energy or cravings shift."
     }
   };
+let currentQuestion = 0;
+  let answers = [];
+
+  const qContainer = document.getElementById('question-container');
+  const rContainer = document.getElementById('result-container');
+
+  function buildQuestionScreens() {
+    questions.forEach((q, i) => {
+      const screen = document.createElement('div');
+      screen.className = 'screen';
+      screen.id = 'screen-q' + i;
+
+      const header = document.createElement('div');
+      header.className = 'progress-header';
+
+      const stepLabel = document.createElement('div');
+      stepLabel.className = 'step-label';
+      stepLabel.textContent = 'Question ' + (i + 1) + ' of ' + questions.length;
+
+      const dots = document.createElement('div');
+      dots.className = 'step-dots';
+      for (let d = 0; d < questions.length; d++) {
+        const dot = document.createElement('span');
+        if (d <= i) dot.classList.add('done');
+        dots.appendChild(dot);
+      }
+
+      header.appendChild(stepLabel);
+      header.appendChild(dots);
+
+      const progressTrack = document.createElement('div');
+      progressTrack.className = 'progress-track';
+      const progressFill = document.createElement('div');
+      progressFill.className = 'progress-fill';
+      progressFill.id = 'progress-' + i;
+      progressTrack.appendChild(progressFill);
+
+      const qText = document.createElement('div');
+      qText.className = 'question-text';
+      qText.textContent = q.text;
+
+      const optionsWrap = document.createElement('div');
+      optionsWrap.className = 'options';
+
+      q.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.textContent = opt.label;
+        btn.onclick = () => selectAnswer(i, opt.type);
+        optionsWrap.appendChild(btn);
+      });
+
+      screen.appendChild(header);
+      screen.appendChild(progressTrack);
+      screen.appendChild(qText);
+      screen.appendChild(optionsWrap);
+      qContainer.appendChild(screen);
+    });
+  }
+
+  function buildResultScreens() {
+    Object.keys(results).forEach(key => {
+      const r = results[key];
+      const screen = document.createElement('div');
+      screen.className = 'screen';
+      screen.id = 'screen-result-' + key;
+
+      screen.innerHTML = `
+        <div class="result-eyebrow">${r.eyebrow}</div>
+        <h1 class="result-headline">${r.headline}</h1>
+        <p class="result-body">${r.body}</p>
+        ${r.testimonialQuote ? `<div class="testimonial-box">
+          <div class="testimonial-quote">\u201C${r.testimonialQuote}\u201D</div>
+          <div class="testimonial-name">\u2014 ${r.testimonialName}</div>
+        </div>` : ''}
+        <div class="action-box">
+          <div class="action-label">${r.actionLabel}</div>
+          <div class="action-text">${r.action}</div>
+        </div>
+        <div class="cta-wrap">
+          <a class="btn-main" href="https://sarahshearercoaching.com/fitnessstrategycall" target="_blank" rel="noopener">Book Your Free Strategy Call</a>
+          <div class="cta-note">A free 20 minute call to map out your next step, no pressure, no obligation.</div>
+        </div>
+        <div class="retake-wrap"><button class="btn-outline" onclick="resetQuiz()">Retake the Quiz</button></div>
+      `;
+      rContainer.appendChild(screen);
+    });
+  }
+
+  function switchScreen(fromId, toId) {
+    const fromEl = document.getElementById(fromId);
+    const toEl = document.getElementById(toId);
+    if (fromEl) {
+      fromEl.classList.add('leaving');
+      setTimeout(() => {
+        fromEl.classList.remove('active', 'leaving');
+        toEl.classList.add('active');
+      }, 280);
+    } else {
+      toEl.classList.add('active');
+    }
+  }
+
+  function goToContext() {
+    switchScreen('screen-intro', 'screen-context');
+  }
+
+  function startQuiz() {
+    currentQuestion = 0;
+    answers = [];
+    switchScreen('screen-context', 'screen-q0');
+    updateProgress(0);
+  }
+
+  function updateProgress(index) {
+    const pct = ((index + 1) / questions.length) * 100;
+    const fill = document.getElementById('progress-' + index);
+    if (fill) {
+      requestAnimationFrame(() => { fill.style.width = pct + '%'; });
+    }
+  }
+
+  function selectAnswer(index, type) {
+    answers.push(type);
+    const currentId = 'screen-q' + index;
+
+    if (index < questions.length - 1) {
+      const nextId = 'screen-q' + (index + 1);
+      switchScreen(currentId, nextId);
+      currentQuestion = index + 1;
+      updateProgress(currentQuestion);
+    } else {
+      switchScreen(currentId, 'screen-loading');
+      setTimeout(() => {
+        showResult();
+      }, 1100);
+    }
+  }
+
+  function showResult() {
+    const tally = { A: 0, B: 0, C: 0 };
+    answers.forEach(a => tally[a]++);
+    let topType = 'A';
+    let topScore = -1;
+    Object.keys(tally).forEach(key => {
+      if (tally[key] > topScore) {
+        topScore = tally[key];
+        topType = key;
+      }
+    });
+    const loadingEl = document.getElementById('screen-loading');
+    const resultEl = document.getElementById('screen-result-' + topType);
+    loadingEl.classList.add('leaving');
+    setTimeout(() => {
+      loadingEl.classList.remove('active', 'leaving');
+      resultEl.classList.add('active');
+    }, 280);
+  }
+
+  function resetQuiz() {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active', 'leaving'));
+    document.querySelectorAll('.progress-fill').forEach(f => f.style.width = '0%');
+    document.getElementById('screen-intro').classList.add('active');
+  }
+
+  buildQuestionScreens();
+  buildResultScreens();
+</script>
+
+</body>
+</html>
