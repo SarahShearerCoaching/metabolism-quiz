@@ -498,11 +498,13 @@
     }
   ];
 
-  const results = {
+    const results = {
     A: {
       eyebrow: "Your Type",
       headline: "Your Metabolism Isn't Slow. It's Under-Built.",
       body: "Here's the encouraging part, friend: muscle is metabolically active tissue, the more you have, the more calories your body burns even while you're resting. If strength training hasn't been part of your routine, your body may have gradually lost muscle over the years, and that quietly lowers your baseline metabolism. It's not that your metabolism broke, it just doesn't have as much muscle to fuel right now. This is genuinely good news, because muscle is one of the few things you can rebuild at any age, starting this week.",
+      testimonialQuote: "Looking forward to starting week 1 of another round of lifts and increasing weight a little there too and see how it goes.",
+      testimonialName: "Metabolic Reset client",
       actionLabel: "Do This This Week",
       action: "Add two 20 to 30 minute strength sessions focused on major muscle groups, squats, rows, presses. Bodyweight is a completely valid place to start."
     },
@@ -510,6 +512,8 @@
       eyebrow: "Your Type",
       headline: "Your Metabolism Adapted. It Can Adapt Back.",
       body: "When you eat very little for a long time, your body doesn't just burn fat, it starts conserving energy everywhere it can, dialing down hormone production, digestion, and even the calories you burn through everyday movement. This is called metabolic adaptation, and it's a protective response, not a personal failure. Years of dieting can make this adaptation stick around even once you start eating more again, which is why it feels like nothing works anymore. The path forward isn't eating even less, it's slowly rebuilding your intake so your body learns food is safe and available again.",
+      testimonialQuote: "I think this week was better for me hitting my macros. I don't have so much brain fog. I feel like I'm getting my cognitive capacity back!",
+      testimonialName: "Metabolic Reset client",
       actionLabel: "Do This This Week",
       action: "Add 150 to 200 calories through whole foods this week, an extra serving of protein and carbs, rather than cutting further. Notice how your energy responds over the next two weeks."
     },
@@ -517,178 +521,9 @@
       eyebrow: "Your Type",
       headline: "Your Metabolism Didn't Slow Down. It Changed Course.",
       body: "Here's what's really going on. Estrogen does more than run your cycle, it also has a say in how your body handles blood sugar and where it decides to store fat. As it shifts during perimenopause, a lot of women watch their fat storage move from their hips and thighs straight to their belly, even when nothing else has changed. That's not a motivation problem. That's your hormones calling different shots than they used to. Your metabolism isn't broken, it's just running on new instructions, and your old routine wasn't built for them.",
+      testimonialQuote: "I am so excited to learn how my body clicks. My metabolism moves slow as I age and it's okay BUT I am more aware of this and how to best support my body and what I need to do.",
+      testimonialName: "Metabolic Reset client",
       actionLabel: "Do This This Week",
       action: "Prioritize a source of protein and fiber at every meal this week to help stabilize blood sugar, and pay attention to whether your afternoon energy or cravings shift."
     }
   };
-let currentQuestion = 0;
-  let answers = [];
-
-  const qContainer = document.getElementById('question-container');
-  const rContainer = document.getElementById('result-container');
-
-  function buildQuestionScreens() {
-    questions.forEach((q, i) => {
-      const screen = document.createElement('div');
-      screen.className = 'screen';
-      screen.id = 'screen-q' + i;
-
-      const header = document.createElement('div');
-      header.className = 'progress-header';
-
-      const stepLabel = document.createElement('div');
-      stepLabel.className = 'step-label';
-      stepLabel.textContent = 'Question ' + (i + 1) + ' of ' + questions.length;
-
-      const dots = document.createElement('div');
-      dots.className = 'step-dots';
-      for (let d = 0; d < questions.length; d++) {
-        const dot = document.createElement('span');
-        if (d <= i) dot.classList.add('done');
-        dots.appendChild(dot);
-      }
-
-      header.appendChild(stepLabel);
-      header.appendChild(dots);
-
-      const progressTrack = document.createElement('div');
-      progressTrack.className = 'progress-track';
-      const progressFill = document.createElement('div');
-      progressFill.className = 'progress-fill';
-      progressFill.id = 'progress-' + i;
-      progressTrack.appendChild(progressFill);
-
-      const qText = document.createElement('div');
-      qText.className = 'question-text';
-      qText.textContent = q.text;
-
-      const optionsWrap = document.createElement('div');
-      optionsWrap.className = 'options';
-
-      q.options.forEach(opt => {
-        const btn = document.createElement('button');
-        btn.className = 'option-btn';
-        btn.textContent = opt.label;
-        btn.onclick = () => selectAnswer(i, opt.type);
-        optionsWrap.appendChild(btn);
-      });
-
-      screen.appendChild(header);
-      screen.appendChild(progressTrack);
-      screen.appendChild(qText);
-      screen.appendChild(optionsWrap);
-      qContainer.appendChild(screen);
-    });
-  }
-
-  function buildResultScreens() {
-    Object.keys(results).forEach(key => {
-      const r = results[key];
-      const screen = document.createElement('div');
-      screen.className = 'screen';
-      screen.id = 'screen-result-' + key;
-
-      screen.innerHTML = `
-        <div class="result-eyebrow">${r.eyebrow}</div>
-        <h1 class="result-headline">${r.headline}</h1>
-        <p class="result-body">${r.body}</p>
-        ${r.testimonialQuote ? `<div class="testimonial-box">
-          <div class="testimonial-quote">\u201C${r.testimonialQuote}\u201D</div>
-          <div class="testimonial-name">\u2014 ${r.testimonialName}</div>
-        </div>` : ''}
-        <div class="action-box">
-          <div class="action-label">${r.actionLabel}</div>
-          <div class="action-text">${r.action}</div>
-        </div>
-        <div class="cta-wrap">
-          <a class="btn-main" href="https://sarahshearercoaching.com/fitnessstrategycall" target="_blank" rel="noopener">Book Your Free Strategy Call</a>
-          <div class="cta-note">A free 20 minute call to map out your next step, no pressure, no obligation.</div>
-        </div>
-        <div class="retake-wrap"><button class="btn-outline" onclick="resetQuiz()">Retake the Quiz</button></div>
-      `;
-      rContainer.appendChild(screen);
-    });
-  }
-
-  function switchScreen(fromId, toId) {
-    const fromEl = document.getElementById(fromId);
-    const toEl = document.getElementById(toId);
-    if (fromEl) {
-      fromEl.classList.add('leaving');
-      setTimeout(() => {
-        fromEl.classList.remove('active', 'leaving');
-        toEl.classList.add('active');
-      }, 280);
-    } else {
-      toEl.classList.add('active');
-    }
-  }
-
-  function goToContext() {
-    switchScreen('screen-intro', 'screen-context');
-  }
-
-  function startQuiz() {
-    currentQuestion = 0;
-    answers = [];
-    switchScreen('screen-context', 'screen-q0');
-    updateProgress(0);
-  }
-
-  function updateProgress(index) {
-    const pct = ((index + 1) / questions.length) * 100;
-    const fill = document.getElementById('progress-' + index);
-    if (fill) {
-      requestAnimationFrame(() => { fill.style.width = pct + '%'; });
-    }
-  }
-
-  function selectAnswer(index, type) {
-    answers.push(type);
-    const currentId = 'screen-q' + index;
-
-    if (index < questions.length - 1) {
-      const nextId = 'screen-q' + (index + 1);
-      switchScreen(currentId, nextId);
-      currentQuestion = index + 1;
-      updateProgress(currentQuestion);
-    } else {
-      switchScreen(currentId, 'screen-loading');
-      setTimeout(() => {
-        showResult();
-      }, 1100);
-    }
-  }
-
-  function showResult() {
-    const tally = { A: 0, B: 0, C: 0 };
-    answers.forEach(a => tally[a]++);
-    let topType = 'A';
-    let topScore = -1;
-    Object.keys(tally).forEach(key => {
-      if (tally[key] > topScore) {
-        topScore = tally[key];
-        topType = key;
-      }
-    });
-    const loadingEl = document.getElementById('screen-loading');
-    const resultEl = document.getElementById('screen-result-' + topType);
-    loadingEl.classList.add('leaving');
-    setTimeout(() => {
-      loadingEl.classList.remove('active', 'leaving');
-      resultEl.classList.add('active');
-    }, 280);
-  }
-
-  function resetQuiz() {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active', 'leaving'));
-    document.querySelectorAll('.progress-fill').forEach(f => f.style.width = '0%');
-    document.getElementById('screen-intro').classList.add('active');
-  }
-
-  buildQuestionScreens();
-  buildResultScreens();
-</script>
-
-</body>
-</html>
